@@ -1,11 +1,10 @@
-// import "global.css"; // Tailwind styles for web
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 export default function App() {
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>Homes</Text>
+      <Text style={styles.text}>About Me</Text>
     </View>
   );
 }
@@ -22,4 +21,3 @@ const styles = StyleSheet.create({
     color: '#000000', // black text
   },
 });
-
