@@ -38,12 +38,12 @@ export default function ToDoScreen() {
           value={userInput}
           onChangeText={setUserInput}
           placeholder="Enter a task..."
-          placeholderTextColor="#666"
+          placeholderTextColor="#888"
           style={styles.input}
           onSubmitEditing={addTask}
           returnKeyType="done"
         />
-        <TouchableOpacity style={styles.addButton} onPress={addTask} activeOpacity={0.7}>
+        <TouchableOpacity style={styles.addButton} onPress={addTask} activeOpacity={0.6}>
           <Text style={styles.addButtonText}>＋</Text>
         </TouchableOpacity>
       </View>
@@ -51,16 +51,18 @@ export default function ToDoScreen() {
       <FlatList
         data={tasks}
         keyExtractor={item => item.id}
-        contentContainerStyle={{ marginTop: 24, paddingBottom: 40 }}
+        contentContainerStyle={{ marginTop: 32, paddingBottom: 40 }}
         renderItem={({ item }) => (
           <View style={styles.taskRow}>
             <Text style={styles.taskText}>{item.title}</Text>
             <TouchableOpacity onPress={() => removeTask(item.id)}>
-              <Text style={styles.deleteText}>✕</Text>
+              <Text style={styles.deleteText}>Remove</Text>
             </TouchableOpacity>
           </View>
         )}
-        ListEmptyComponent={<Text style={styles.emptyText}>No tasks yet. Add one above!!!</Text>}
+        ListEmptyComponent={
+          <Text style={styles.emptyText}>No tasks yet. Add one above!!!</Text>
+        }
       />
     </KeyboardAvoidingView>
   );
@@ -70,54 +72,54 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    padding: 20,
+    padding: 24,
   },
   inputRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 10,
   },
   input: {
     flex: 1,
-    height: 44,
+    height: 48,
     borderBottomWidth: 1,
     borderBottomColor: '#ccc',
-    fontSize: 16,
-    color: '#111',
+    fontSize: 17,
+    color: '#222',
     paddingVertical: 0,
   },
   addButton: {
-    paddingHorizontal: 14,
-    height: 44,
+    paddingHorizontal: 16,
+    height: 48,
     justifyContent: 'center',
     alignItems: 'center',
   },
   addButtonText: {
-    fontSize: 28,
-    color: '#111',
-    fontWeight: '300',
+    fontSize: 30,
+    color: '#555',
+    fontWeight: '400',
   },
   taskRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     borderBottomWidth: 1,
     borderBottomColor: '#eee',
-    paddingVertical: 12,
+    paddingVertical: 14,
   },
   taskText: {
-    fontSize: 16,
-    color: '#111',
+    fontSize: 17,
+    color: '#222',
     flexShrink: 1,
   },
   deleteText: {
     fontSize: 18,
-    color: '#999',
-    paddingHorizontal: 8,
+    color: '#FF0000',
+    paddingHorizontal: 10,
   },
   emptyText: {
     textAlign: 'center',
-    color: '#999',
-    marginTop: 40,
+    color: '#bbb',
+    marginTop: 48,
     fontSize: 16,
     fontStyle: 'italic',
   },
