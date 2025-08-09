@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
-  ScrollView,
+  FlatList,
   StyleSheet,
   Text,
   TextInput,
@@ -20,24 +20,17 @@ export default function ToDoScreen() {
   const [tasks, setTasks] = useState<Task[]>([]);
 
   useEffect(() => {
-    console.log('Simple todo loaded');
+    console.log('Effective todo loaded');
   }, []);
 
   const addTask = () => {
-    if (!userInput.trim()) {
-      console.log('Please enter a task');
-      return;
-    }
+    if (!userInput.trim()) return;
     
-    // Check if task already exists
     const taskExists = tasks.some(task => 
       task.title.toLowerCase() === userInput.toLowerCase().trim()
     );
     
-    if (taskExists) {
-      console.log('Task already exists!');
-      return;
-    }
+    if (taskExists) return;
     
     const newTask: Task = {
       id: Date.now().toString(),
@@ -45,94 +38,105 @@ export default function ToDoScreen() {
       completed: false,
     };
     
-    setTasks(prevTasks => [...prevTasks, newTask]);
+    setTasks(prev => [...prev, newTask]);
     setUserInput('');
   };
 
   const toggleTask = (taskId: string) => {
-    setTasks(prevTasks =>
-      prevTasks.map(task =>
-        task.id === taskId
-          ? { ...task, completed: !task.completed }
-          : task
+    setTasks(prev =>
+      prev.map(task =>
+        task.id === taskId ? { ...task, completed: !task.completed } : task
       )
     );
   };
 
-  const removeTask = (taskId: string) => {
-    setTasks(prevTasks => prevTasks.filter(task => task.id !== taskId));
+  const deleteTask = (taskId: string) => {
+    setTasks(prev => prev.filter(task => task.id !== taskId));
   };
+
+  const clearCompleted = () => {
+    setTasks(prev => prev.filter(task => !task.completed));
+  };
+
+  const pendingTasks = tasks.filter(task => !task.completed);
+  const completedTasks = tasks.filter(task => task.completed);
+
+  const renderTask = ({ item }: { item: Task }) => (
+    <View style={styles.taskRow}>
+      <TouchableOpacity
+        style={[styles.check, item.completed && styles.checked]}
+        onPress={() => toggleTask(item.id)}
+      >
+        {item.completed && <Text style={styles.checkText}>✓</Text>}
+      </TouchableOpacity>
+      
+      <Text style={[styles.taskLabel, item.completed && styles.doneTask]}>
+        {item.title}
+      </Text>
+      
+      <TouchableOpacity
+        style={styles.deleteBtn}
+        onPress={() => deleteTask(item.id)}
+      >
+        <Text style={styles.deleteIcon}>×</Text>
+      </TouchableOpacity>
+    </View>
+  );
 
   return (
     <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.title}>My Todo List</Text>
-        <View style={styles.taskCount}>
-          <Text style={styles.countText}>{tasks.length}</Text>
-        </View>
+      {/* Quick Stats */}
+      <View style={styles.stats}>
+        <Text style={styles.statsText}>
+          {pendingTasks.length} pending
+          {completedTasks.length > 0 && ` • ${completedTasks.length} done`}
+        </Text>
       </View>
 
-      {/* Input Section */}
-      <View style={styles.inputContainer}>
+      {/* Add Task - Priority Focus */}
+      <View style={styles.inputRow}>
         <TextInput
           value={userInput}
           onChangeText={setUserInput}
-          placeholder="Add a new task..."
-          style={styles.textInput}
+          placeholder="Add task..."
+          style={styles.input}
           onSubmitEditing={addTask}
           returnKeyType="done"
+          autoFocus={tasks.length === 0}
         />
         <TouchableOpacity
-          style={[
-            styles.addButton,
-            !userInput.trim() && styles.addButtonDisabled
-          ]}
+          style={[styles.addBtn, !userInput.trim() && styles.disabled]}
           onPress={addTask}
           disabled={!userInput.trim()}
         >
-          <Text style={styles.addButtonText}>Add</Text>
+          <Text style={styles.addText}>ADD</Text>
         </TouchableOpacity>
       </View>
 
-      {/* Tasks List */}
-      <View style={styles.tasksContainer}>
-        {tasks.length === 0 ? (
-          <View style={styles.emptyState}>
-            <Text style={styles.emptyText}>No tasks yet. Add one above!</Text>
-          </View>
-        ) : (
-          <ScrollView style={styles.tasksList}>
-            {tasks.map((task) => (
-              <View key={task.id} style={styles.taskItem}>
-                <TouchableOpacity
-                  style={[
-                    styles.checkbox,
-                    task.completed && styles.checkboxCompleted
-                  ]}
-                  onPress={() => toggleTask(task.id)}
-                >
-                  {task.completed && <Text style={styles.checkmark}>✓</Text>}
-                </TouchableOpacity>
-                
-                <Text style={[
-                  styles.taskText,
-                  task.completed && styles.taskTextCompleted
-                ]}>
-                  {task.title}
-                </Text>
-                
-                <TouchableOpacity
-                  style={styles.deleteButton}
-                  onPress={() => removeTask(task.id)}
-                >
-                  <Text style={styles.deleteText}>Delete</Text>
-                </TouchableOpacity>
-              </View>
-            ))}
-          </ScrollView>
-        )}
-      </View>
+      {/* Task List - Optimized */}
+      {tasks.length === 0 ? (
+        <View style={styles.empty}>
+          <Text style={styles.emptyText}>Start by adding a task above</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={tasks}
+          renderItem={renderTask}
+          keyExtractor={(item) => item.id}
+          style={styles.list}
+          showsVerticalScrollIndicator={false}
+          removeClippedSubviews={true}
+          maxToRenderPerBatch={10}
+          windowSize={10}
+        />
+      )}
+
+      {/* Quick Actions */}
+      {completedTasks.length > 0 && (
+        <TouchableOpacity style={styles.clearBtn} onPress={clearCompleted}>
+          <Text style={styles.clearText}>Clear {completedTasks.length} completed</Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 }
@@ -141,128 +145,129 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#ffffff',
-    paddingHorizontal: 20,
     paddingTop: 50,
   },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 30,
-    paddingBottom: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#333333',
-  },
-  taskCount: {
-    backgroundColor: '#007AFF',
-    borderRadius: 15,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-  },
-  countText: {
-    color: 'white',
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
-  inputContainer: {
-    flexDirection: 'row',
-    marginBottom: 20,
-    gap: 10,
-  },
-  textInput: {
-    flex: 1,
-    height: 44,
-    borderWidth: 1,
-    borderColor: '#cccccc',
-    borderRadius: 8,
-    paddingHorizontal: 15,
-    fontSize: 16,
-    backgroundColor: '#f8f8f8',
-  },
-  addButton: {
-    backgroundColor: '#007AFF',
+  stats: {
     paddingHorizontal: 20,
+    paddingVertical: 10,
+    backgroundColor: '#f8fafc',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e2e8f0',
+  },
+  statsText: {
+    fontSize: 14,
+    color: '#64748b',
+    fontWeight: '500',
+    textAlign: 'center',
+  },
+  inputRow: {
+    flexDirection: 'row',
+    padding: 16,
+    backgroundColor: '#ffffff',
+    borderBottomWidth: 2,
+    borderBottomColor: '#e2e8f0',
+    gap: 12,
+  },
+  input: {
+    flex: 1,
+    fontSize: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    backgroundColor: '#f1f5f9',
+    borderRadius: 8,
+    color: '#1e293b',
+  },
+  addBtn: {
+    backgroundColor: '#3b82f6',
+    paddingHorizontal: 16,
     paddingVertical: 12,
     borderRadius: 8,
     justifyContent: 'center',
   },
-  addButtonDisabled: {
-    backgroundColor: '#cccccc',
+  disabled: {
+    backgroundColor: '#cbd5e1',
   },
-  addButtonText: {
+  addText: {
     color: 'white',
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '600',
+    letterSpacing: 0.5,
   },
-  tasksContainer: {
+  list: {
     flex: 1,
+    backgroundColor: '#ffffff',
   },
-  tasksList: {
-    flex: 1,
-  },
-  taskItem: {
+  taskRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 15,
-    paddingHorizontal: 10,
-    backgroundColor: '#f9f9f9',
-    borderRadius: 8,
-    marginBottom: 10,
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f1f5f9',
   },
-  checkbox: {
-    width: 24,
-    height: 24,
-    borderWidth: 2,
-    borderColor: '#007AFF',
+  check: {
+    width: 20,
+    height: 20,
     borderRadius: 4,
-    marginRight: 15,
+    borderWidth: 2,
+    borderColor: '#cbd5e1',
+    marginRight: 16,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  checkboxCompleted: {
-    backgroundColor: '#007AFF',
+  checked: {
+    backgroundColor: '#22c55e',
+    borderColor: '#22c55e',
   },
-  checkmark: {
+  checkText: {
     color: 'white',
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: 'bold',
   },
-  taskText: {
+  taskLabel: {
     flex: 1,
     fontSize: 16,
-    color: '#333333',
+    color: '#1e293b',
+    lineHeight: 20,
   },
-  taskTextCompleted: {
+  doneTask: {
+    color: '#94a3b8',
     textDecorationLine: 'line-through',
-    color: '#888888',
   },
-  deleteButton: {
-    backgroundColor: '#FF3B30',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 6,
+  deleteBtn: {
+    width: 32,
+    height: 32,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 8,
   },
-  deleteText: {
-    color: 'white',
-    fontSize: 14,
-    fontWeight: '600',
+  deleteIcon: {
+    fontSize: 20,
+    color: '#ef4444',
+    fontWeight: '300',
   },
-  emptyState: {
+  empty: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingTop: 50,
+    paddingHorizontal: 40,
   },
   emptyText: {
-    fontSize: 18,
-    color: '#888888',
+    fontSize: 16,
+    color: '#94a3b8',
+    textAlign: 'center',
+  },
+  clearBtn: {
+    backgroundColor: '#fef2f2',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderTopWidth: 1,
+    borderTopColor: '#fee2e2',
+  },
+  clearText: {
+    color: '#dc2626',
+    fontSize: 14,
+    fontWeight: '500',
     textAlign: 'center',
   },
 });
