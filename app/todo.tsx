@@ -1,3 +1,4 @@
+import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
   FlatList,
@@ -16,6 +17,7 @@ interface Task {
 }
 
 export default function ToDoScreen() {
+  const router = useRouter(); // ✅ for navigation
   const [userInput, setUserInput] = useState('');
   const [tasks, setTasks] = useState<Task[]>([]);
 
@@ -137,6 +139,14 @@ export default function ToDoScreen() {
           <Text style={styles.clearText}>Clear {completedTasks.length} completed</Text>
         </TouchableOpacity>
       )}
+
+      {/* ✅ Button to navigate to Register Page */}
+      <TouchableOpacity 
+        style={styles.registerBtn} 
+        onPress={() => router.push('/register')}
+      >
+        <Text style={styles.registerText}>Go to Register</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -269,5 +279,17 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '500',
     textAlign: 'center',
+  },
+  registerBtn: {
+    backgroundColor: '#10b981',
+    margin: 20,
+    paddingVertical: 14,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  registerText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });

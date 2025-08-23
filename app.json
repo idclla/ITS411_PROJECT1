@@ -8,19 +8,18 @@
     "scheme": "its411project1",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
-
     "ios": {
       "supportsTablet": true
     },
-
     "android": {
+      "googleServicesFile": "./google-services.josn",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.company.project411"
     },
-
     "web": {
       "bundler": "metro",
       "output": "static",
@@ -29,7 +28,6 @@
       "display": "standalone",
       "themeColor": "#ffffff"
     },
-
     "plugins": [
       "expo-router",
       [
@@ -42,7 +40,6 @@
         }
       ]
     ],
-
     "experiments": {
       "typedRoutes": true
     }

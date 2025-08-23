@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "744987062194",
+    "project_id": "its411projectlacson",
+    "storage_bucket": "its411projectlacson.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:744987062194:android:0e08a1eb5c834736943eab",
+        "android_client_info": {
+          "package_name": "com.company.project411"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDoh6KJRzPZXFVABTlOZU4Qlo59hki8V_k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
